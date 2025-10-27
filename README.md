@@ -1,3 +1,14 @@
+This is a .Net 9 Blazor Interactive Server Side application.
+
+The reason for this is I have another working application that uses Smartcard authentication. The built in Blazor signalR works without a problem except for when adding SignalR.
+
+Environment:
+Windows 11
+Visual Studio Enterprise v17.14.16
+.Net 9
+
+Details:
+
 This project is to demonstrate failure of SignalR when using Kestrel web server and configuring the server to require client certificates (smartcard).
 builder.Services.Configure<KestrelServerOptions>(options =>
 {

@@ -1,0 +1,85 @@
+@page "/chat"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+
+<h3>Chat</h3>
+
+<div>
+    <input @bind="user" placeholder="Your name" />
+    <input @bind="message" placeholder="Message" @onkeydown="HandleKeyDown" />
+    <button @onclick="SendMessage">Send</button>
+</div>
+
+<ul>
+    @foreach (var chatMessage in messages)
+    {
+        <li><strong>@chatMessage.User:</strong> @chatMessage.Message</li>
+    }
+</ul>
+
+<div>Exception:<br/>@exceptionMessage</div>
+@code {
+    private HubConnection? hubConnection;
+    private string user = string.Empty;
+    private string message = string.Empty;
+    private List<ChatMessage> messages = new();
+    private string exceptionMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"))
+                .WithAutomaticReconnect()
+                .Build();
+
+            hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+            {
+                messages.Add(new ChatMessage { User = user, Message = message });
+                InvokeAsync(StateHasChanged);
+            });
+
+            await hubConnection.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            var a = ex;
+            exceptionMessage = ex.Message;
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        try
+        {
+            if (hubConnection is not null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("SendMessage", user, message);
+                message = string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            var a = ex;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SendMessage();
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    private class ChatMessage
+    {
+        public string User { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+    }
+}

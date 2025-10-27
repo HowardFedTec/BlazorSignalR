@@ -1,6 +1,6 @@
 This is a .Net 9 Blazor Interactive Server Side application.
 
-The reason for this is I have another working application that uses Smartcard authentication. The built in Blazor signalR works without a problem except for when adding SignalR.
+The reason for this is I have another working application that uses Smartcard authentication. The built in Blazor signalR works without a problem except for when adding SignalR. So here is a bare bones minimal implementation to demostrate the problem.
 
 Environment:
 Windows 11
